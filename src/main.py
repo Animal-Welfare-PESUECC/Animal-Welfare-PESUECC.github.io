@@ -358,20 +358,10 @@ class ImageReplacementParser(HTMLParser):
         self.output = []
 
     def handle_starttag(self, tag, attrs):
-        if tag.lower() == "img":
-            replacement = self._maybe_replace_image(attrs)
-            if replacement:
-                self.output.append(replacement)
-                return
-        self.output.append(f"<{tag}{_render_attributes(attrs)}>")
+        self._handle_start(tag, attrs)
 
     def handle_startendtag(self, tag, attrs):
-        if tag.lower() == "img":
-            replacement = self._maybe_replace_image(attrs)
-            if replacement:
-                self.output.append(replacement)
-                return
-        self.output.append(f"<{tag}{_render_attributes(attrs)} />")
+        self._handle_start(tag, attrs)
 
     def handle_endtag(self, tag):
         self.output.append(f"</{tag}>")
@@ -394,23 +384,30 @@ class ImageReplacementParser(HTMLParser):
     def handle_pi(self, data):
         self.output.append(f"<?{data}>")
 
-    def _maybe_replace_image(self, attrs):
+    def _handle_start(self, tag, attrs):
+        if tag.lower() == "img":
+            replacement = self._build_replacement(attrs)
+            if replacement:
+                self.output.append(replacement)
+                return
+        raw = self.get_starttag_text()
+        if raw:
+            self.output.append(raw)
+
+    def _build_replacement(self, attrs):
         attrs_dict = {k.lower(): v for k, v in attrs}
         src = attrs_dict.get("src")
         if not src:
             return None
 
-        normalized = src.split("?", 1)[0].split("#", 1)[0]
-        normalized = normalized.lstrip("/")
+        normalized = src.split("?", 1)[0].split("#", 1)[0].lstrip("/")
         if normalized.startswith("./"):
             normalized = normalized[2:]
-
         if "assets/images/" not in normalized:
             return None
 
         relative = normalized.split("assets/images/", 1)[1]
-        filename = os.path.basename(relative)
-        manifest_entry = self.manifest.get(filename)
+        manifest_entry = self.manifest.get(os.path.basename(relative))
         if not manifest_entry:
             return None
 
@@ -464,8 +461,9 @@ def main():
             return
 
         if not has_file_changed(args.file):
-            print(f"No changes detected in {args.file}. Skipping rebuild.")
-            return
+            print(
+                f"No changes detected in {args.file} based on cache; rebuilding anyway."
+            )
 
         page_data, html_content = parse_file(args.file)
         if page_data is None or html_content is None:
