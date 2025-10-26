@@ -26,6 +26,7 @@ POSTS_DIR = "content/posts"
 PAGE_SLUG_CACHE = ".cache/page-slugs.json"
 IMAGE_MANIFEST_PATH = ".cache/image-manifest.json"
 GENERATED_THEME_PATH = "assets/css/generated.daisyui.css"
+GENERATED_FONTS_PATH = "assets/css/generated.fonts.css"
 
 
 def load_previous_slugs():
@@ -107,40 +108,66 @@ def has_file_changed(filepath, cache_dir=".cache"):
     return True
 
 
+def _ensure_sequence(value):
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple, set)):
+        return [item for item in value if item is not None]
+    return [value]
+
+
+def _format_css_scalar(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(value)
+    if isinstance(value, str):
+        if not value:
+            return '""'
+        if re.search(r"[\s;:\"]", value):
+            return json.dumps(value)
+        return value
+    return json.dumps(value)
+
+
 def normalize_theme_config(config):
     theme_config = config.get("theme")
 
     if isinstance(theme_config, str):
-        normalized = {"default": theme_config}
+        base = {"default": theme_config}
     elif isinstance(theme_config, dict):
-        normalized = dict(theme_config)
+        base = dict(theme_config)
     else:
-        normalized = {}
+        base = {}
 
     default_theme = (
-        normalized.get("default")
-        or normalized.get("preset")
-        or normalized.get("name")
+        base.get("default")
+        or base.get("preset")
+        or base.get("name")
         or "dracula"
     )
-    normalized["default"] = default_theme
 
-    include_candidates = normalized.get("include") or normalized.get("presets")
-    if not include_candidates:
-        include_candidates = []
-    elif not isinstance(include_candidates, list):
-        include_candidates = [include_candidates]
+    include_candidates = base.get("include") or base.get("presets") or []
+    include_list = _ensure_sequence(include_candidates)
 
     ordered = []
     seen = set()
-    for entry in include_candidates:
-        if not entry or entry in seen:
+    if default_theme:
+        seen.add(default_theme)
+        ordered.append(default_theme)
+
+    for entry in include_list:
+        if not entry:
             continue
-        ordered.append(entry)
-        seen.add(entry)
-    if default_theme and default_theme not in seen:
-        ordered.insert(0, default_theme)
-    normalized["include"] = ordered
+        name = str(entry).strip()
+        if not name or name in seen:
+            continue
+        ordered.append(name)
+        seen.add(name)
+
+    normalized = dict(base)
+    normalized["default"] = default_theme
+    normalized["include"] = ordered  # type: ignore[assignment]
 
     config["theme"] = normalized
     return normalized
@@ -149,78 +176,193 @@ def normalize_theme_config(config):
 def write_theme_file(config, output_path=GENERATED_THEME_PATH):
     theme = config.get("theme") or {}
     include = theme.get("include") or []
-    custom_raw = theme.get("custom")
-
-    def format_value(value):
-        if isinstance(value, bool):
-            return "true" if value else "false"
-        if isinstance(value, (int, float)) and not isinstance(value, bool):
-            return str(value)
-        if isinstance(value, str):
-            if not value:
-                return "\"\""
-            if re.search(r"[\s;:\"]", value):
-                return json.dumps(value)
-            return value
-        return json.dumps(value)
+    include_list = _ensure_sequence(include)
 
     names = []
     seen = set()
-    for entry in include:
-        if not entry or entry in seen:
+    for entry in include_list:
+        name = str(entry).strip()
+        if not name or name in seen:
             continue
-        names.append(entry)
-        seen.add(entry)
+        names.append(name)
+        seen.add(name)
 
     css_blocks = []
-
     if names:
         joined_names = ", ".join(json.dumps(name) for name in names)
-        css_blocks.append(
-            '@plugin "daisyui" {\n  themes: (' + joined_names + ');\n}'
-        )
+        css_blocks.append(f'@plugin "daisyui" {{\n  themes: ({joined_names});\n}}')
     else:
         css_blocks.append('@plugin "daisyui" {\n  themes: all;\n}')
 
-    custom_items = custom_raw.items() if isinstance(custom_raw, dict) else []
+    custom = theme.get("custom")
+    custom_items = custom.items() if isinstance(custom, dict) else []
+    default_theme = theme.get("default")
+
     for name, values in custom_items:
         if not name or not isinstance(values, dict):
             continue
 
-        value_pairs = []
+        lines = ['@plugin "daisyui/theme" {']
         seen_keys = set()
 
-        if "name" in values:
-            value_pairs.append(("name", values["name"]))
-            seen_keys.add("name")
-        else:
-            value_pairs.append(("name", name))
-            seen_keys.add("name")
+        theme_name = values.get("name") if isinstance(values.get("name"), str) else None
+        theme_name = theme_name.strip() if theme_name else name
+        lines.append(f"  name: {_format_css_scalar(theme_name)};")
+        seen_keys.add("name")
 
         if "default" in values:
-            value_pairs.append(("default", values["default"]))
+            lines.append(f"  default: {_format_css_scalar(values['default'])};")
             seen_keys.add("default")
         else:
-            value_pairs.append(("default", theme.get("default") == name))
+            is_default = bool(default_theme and default_theme == name)
+            lines.append(f"  default: {_format_css_scalar(is_default)};")
             seen_keys.add("default")
 
         for key, value in values.items():
             if key in seen_keys:
                 continue
-            value_pairs.append((key, value))
+            lines.append(f"  {key}: {_format_css_scalar(value)};")
             seen_keys.add(key)
 
-        lines = ["@plugin \"daisyui/theme\" {"]
-        for key, value in value_pairs:
-            lines.append(f"  {key}: {format_value(value)};")
         lines.append("}")
         css_blocks.append("\n".join(lines))
 
     css_content = "\n\n".join(css_blocks) + "\n"
-
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(css_content)
+
+
+def _normalize_font_family(value):
+    if value is None:
+        return None
+    if isinstance(value, (list, tuple, set)):
+        parts = [str(item).strip() for item in value if str(item).strip()]
+        return ", ".join(parts) if parts else None
+    text = str(value).strip()
+    return text or None
+
+
+def _css_safe_key(name):
+    slug = re.sub(r"[^a-z0-9-]+", "-", str(name).strip().lower())
+    slug = slug.strip("-")
+    return slug or "custom"
+
+
+def write_font_file(config, output_path=GENERATED_FONTS_PATH):
+    fonts_config = config.get("fonts") or {}
+    import_entries = [
+        str(item).strip()
+        for item in _ensure_sequence(fonts_config.get("imports") or fonts_config.get("import"))
+        if str(item).strip()
+    ]
+
+    custom_entries = _ensure_sequence(
+        fonts_config.get("custom") or fonts_config.get("inline")
+    )
+
+    families_config = fonts_config.get("families")
+    if not isinstance(families_config, dict):
+        families_config = {}
+
+    default_body = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    default_heading = f"var(--font-body, {default_body})"
+    default_mono = (
+        'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+    )
+
+    variables = []
+    seen_keys = set()
+    standard_defaults = {
+        "body": default_body,
+        "heading": default_heading,
+        "mono": default_mono,
+    }
+
+    for key, fallback in standard_defaults.items():
+        custom_value = _normalize_font_family(families_config.get(key))
+        variables.append((key, custom_value or fallback))
+        seen_keys.add(key)
+
+    for key, value in families_config.items():
+        if key in seen_keys:
+            continue
+        custom_value = _normalize_font_family(value)
+        if not custom_value:
+            continue
+        variables.append((key, custom_value))
+
+    lines = []
+
+    for item in import_entries:
+        if item.startswith("@import"):
+            lines.append(item if item.endswith(";") else f"{item};")
+        else:
+            lines.append(f'@import url("{item}");')
+
+    if import_entries:
+        lines.append("")
+
+    for entry in custom_entries:
+        if isinstance(entry, dict):
+            block_lines = ["@font-face {"]
+            for prop, value in entry.items():
+                formatted = _format_css_scalar(value)
+                if not formatted:
+                    continue
+                block_lines.append(f"  {prop}: {formatted};")
+            block_lines.append("}")
+            lines.append("\n".join(block_lines))
+        elif entry:
+            lines.append(str(entry))
+
+    if custom_entries:
+        lines.append("")
+
+    if variables:
+        lines.append(":root {")
+        for key, value in variables:
+            lines.append(f"  --font-{_css_safe_key(key)}: {value};")
+        lines.append("}")
+        lines.append("")
+
+    lines.append("body {")
+    lines.append(f"  font-family: var(--font-body, {default_body});")
+    lines.append("}")
+    lines.append("")
+
+    lines.append("h1, h2, h3, h4, h5, h6 {")
+    lines.append(
+        f"  font-family: var(--font-heading, var(--font-body, {default_body}));"
+    )
+    lines.append("}")
+    lines.append("")
+
+    lines.append("code, pre, kbd, samp {")
+    lines.append(
+        f"  font-family: var(--font-mono, {default_mono});"
+    )
+    lines.append("}")
+    lines.append("")
+
+    css_output = "\n".join(lines).rstrip() + "\n"
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(css_output)
+
+
+def generate_styles(
+    config_path=CONFIG_FILE,
+    theme_path=GENERATED_THEME_PATH,
+    fonts_path=GENERATED_FONTS_PATH,
+):
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f) or {}
+    normalize_theme_config(config)
+    write_theme_file(config, theme_path)
+    write_font_file(config, fonts_path)
+    return config
 
 
 MARKDOWN_EXTENSIONS = [
@@ -547,6 +689,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file")
     parser.add_argument("--clean", action="store_true")
+    parser.add_argument("--generate-styles", action="store_true")
     args = parser.parse_args()
 
     if args.clean:
@@ -556,10 +699,12 @@ def main():
         print("generated files are deleted.")
         return
 
-    with open(CONFIG_FILE, "r") as f:
-        site_config = yaml.safe_load(f) or {}
-    normalize_theme_config(site_config)
-    write_theme_file(site_config)
+    if args.generate_styles:
+        generate_styles()
+        print("Generated theme and font CSS.")
+        return
+
+    site_config = generate_styles()
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     templates = load_templates(env)
     image_manifest = load_image_manifest()

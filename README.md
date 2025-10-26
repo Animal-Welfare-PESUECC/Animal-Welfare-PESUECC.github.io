@@ -35,6 +35,18 @@ mettu (మెట్లు, /ˈmɛt.t̪u/) is a simple static site generator that
          accent: "#37cdbe"
    ```
 
+    Optionally, define site-wide font imports and the families to apply:
+
+    ```yaml
+    fonts:
+       imports:
+          - "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+       families:
+          body: "'Inter', sans-serif"
+          heading: "'Space Grotesk', sans-serif"
+          mono: "'JetBrains Mono', monospace"
+    ```
+
 5. Create markdown files in the `content` directory. Each file should start similarly to the given examples.
 6. Templates and svg icons are located in the `templates` directory. You can customize them as needed.
 7. Assets like css, images, etc are placed in the `assets` directory.

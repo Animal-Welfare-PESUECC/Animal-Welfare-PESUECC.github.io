@@ -7,5 +7,6 @@ package-lock.json
 
 /assets/css/syntax.css
 /assets/css/generated.daisyui.css
+/assets/css/generated.fonts.css
 .cache
 /assets/images-processed/
