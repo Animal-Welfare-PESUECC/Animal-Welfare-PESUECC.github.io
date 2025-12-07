@@ -17,11 +17,15 @@ const inputDir = path.join(__dirname, '/assets/images');
 const outputDir = path.join(__dirname, '/assets/images-processed');
 const siteConfigPath = path.join(__dirname, 'config.yaml');
 const requirementsPath = path.join(__dirname, 'requirements.txt');
-const DEFAULT_PYTHON_EXECUTABLE = 'python3';
+
 
 processImages(inputDir, outputDir).catch(e =>
   console.error('[images] initial processing failed', e)
 );
+
+if (!fs.existsSync(inputDir)) {
+  fs.mkdirSync(inputDir, { recursive: true });
+}
 
 const sanitizeExecutable = (value) => {
   if (typeof value !== 'string') {
@@ -46,6 +50,11 @@ const resolvePythonExecutable = () => {
     return envOverride;
   }
 
+  const venvPython = path.join(__dirname, '.venv/bin/python');
+  if (fs.existsSync(venvPython)) {
+    return venvPython;
+  }
+
   const siteConfig = loadSiteConfig();
   const runtimeConfig = siteConfig && typeof siteConfig === 'object' ? siteConfig.runtime : null;
 
@@ -64,18 +73,33 @@ const resolvePythonExecutable = () => {
     }
   }
 
-  return DEFAULT_PYTHON_EXECUTABLE;
+  return 'python3';
 };
 
 let pythonExecutable = resolvePythonExecutable();
 console.log(`[config] Using Python executable: ${pythonExecutable}`);
 
 const ensurePythonRequirements = () => {
+  const venvPath = path.join(__dirname, '.venv');
+  const venvPython = path.join(venvPath, 'bin/python');
+  const venvPip = path.join(venvPath, 'bin/pip');
+
+  if (!fs.existsSync(venvPath)) {
+    console.log('Creating python virtual environment...');
+    try {
+      execSync(`python3 -m venv "${venvPath}"`, { stdio: 'inherit' });
+      pythonExecutable = venvPython;
+    } catch (e) {
+      console.error('Failed to create virtual environment.', e);
+      return;
+    }
+  }
+
   try {
     console.log('Installing python dependencies...');
-    execSync(`${pythonExecutable} -m pip install -r "${requirementsPath}"`, { stdio: 'inherit' });
+    execSync(`${venvPip} install -r "${requirementsPath}"`, { stdio: 'inherit' });
   } catch (e) {
-    console.error('Failed to install Python dependencies. Verify interpreter path.', e);
+    console.error('Failed to install Python dependencies.', e);
   }
 };
 
@@ -124,6 +148,25 @@ const py_build_plugin = () => {
 
   return {
     name: 'builder-ssg',
+    buildStart() {
+      console.log('Generating static files...');
+      try {
+        const output = execSync(`${pythonExecutable} src/main.py`);
+        console.log(output.toString().trim());
+      } catch (e) {
+        console.error('Failed to generate static files:', e);
+        throw e;
+      }
+    },
+    closeBundle() {
+      console.log('Cleaning up root directory...');
+      try {
+        const output = execSync(`${pythonExecutable} src/main.py --clean`);
+        console.log(output.toString().trim());
+      } catch (e) {
+        console.error('Failed to cleanup:', e);
+      }
+    },
     configureServer(server) {
       const regenerateGeneratedCss = () => {
         runGenerateStyles();
@@ -146,6 +189,16 @@ const py_build_plugin = () => {
       };
 
       build();
+
+      server.watcher.options = {
+        ignored: [
+          '**/assets/css/generated.daisyui.css',
+          '**/assets/css/generated.fonts.css',
+          '**/assets/css/syntax.css',
+          '**/.venv/**',
+          '**/dist/**'
+        ]
+      };
 
       server.watcher.on('all', (event, filePath) => {
         if (!ready) {

@@ -10,3 +10,6 @@ package-lock.json
 /assets/css/generated.fonts.css
 .cache
 /assets/images-processed/
+.venv
+dist
+.venv/*
