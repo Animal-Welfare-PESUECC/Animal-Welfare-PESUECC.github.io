@@ -11,11 +11,13 @@ import json
 import re
 from html import escape
 from html.parser import HTMLParser
-import dotenv
+try:
+    import dotenv
+    dotenv.load_dotenv()
+except ImportError:
+    pass
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
-
-dotenv.load_dotenv()
 
 DEFAULT_PYGMENTS_THEME = "native"
 TEMPLATE_DIR = "templates"
@@ -204,30 +206,42 @@ def write_theme_file(config, output_path=GENERATED_THEME_PATH):
     default_theme = theme.get("default")
 
     for name, values in custom_items:
-        if not name or not isinstance(values, dict):
+        if not name or not values:
             continue
 
         lines = ['@plugin "daisyui/theme" {']
-        seen_keys = set()
+        
+        # Determine strict defaults
+        is_default = bool(default_theme and default_theme == name)
+        
+        if isinstance(values, str):
+            # Raw css mode
+            # We still need to provide name and default properties for daisyui plugin to work
+             lines.append(f"  name: {_format_css_scalar(name)};")
+             lines.append(f"  default: {_format_css_scalar(is_default)};")
+             lines.append(values)
+        elif isinstance(values, dict):
+             seen_keys = set()
+             
+             theme_name = values.get("name") if isinstance(values.get("name"), str) else None
+             theme_name = theme_name.strip() if theme_name else name
+             lines.append(f"  name: {_format_css_scalar(theme_name)};")
+             seen_keys.add("name")
 
-        theme_name = values.get("name") if isinstance(values.get("name"), str) else None
-        theme_name = theme_name.strip() if theme_name else name
-        lines.append(f"  name: {_format_css_scalar(theme_name)};")
-        seen_keys.add("name")
+             if "default" in values:
+                 lines.append(f"  default: {_format_css_scalar(values['default'])};")
+                 seen_keys.add("default")
+             else:
+                 lines.append(f"  default: {_format_css_scalar(is_default)};")
+                 seen_keys.add("default")
 
-        if "default" in values:
-            lines.append(f"  default: {_format_css_scalar(values['default'])};")
-            seen_keys.add("default")
+             for key, value in values.items():
+                 if key in seen_keys:
+                     continue
+                 lines.append(f"  {key}: {_format_css_scalar(value)};")
+                 seen_keys.add(key)
         else:
-            is_default = bool(default_theme and default_theme == name)
-            lines.append(f"  default: {_format_css_scalar(is_default)};")
-            seen_keys.add("default")
-
-        for key, value in values.items():
-            if key in seen_keys:
-                continue
-            lines.append(f"  {key}: {_format_css_scalar(value)};")
-            seen_keys.add(key)
+            continue
 
         lines.append("}")
         css_blocks.append("\n".join(lines))

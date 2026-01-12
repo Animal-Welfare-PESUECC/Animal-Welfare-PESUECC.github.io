@@ -1,4 +1,5 @@
-{% set active_theme = site.theme.default if site.theme is defined and site.theme.default is defined else (site.theme if site.theme is defined else "dracula") %}
+{% set active_theme = page.theme if page.theme is defined else (site.theme.default if site.theme is defined and
+site.theme.default is defined else (site.theme if site.theme is defined else "dracula")) %}
 <!DOCTYPE html>
 <html lang="en" data-theme="{{ active_theme }}">
 
