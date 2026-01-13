@@ -1,6 +1,6 @@
-site_name: "site"
-author: "you"
-base_url: "you.com"
+site_name: "PAWS ECC"
+author: "PAWS ECC"
+base_url: "pawsecc.com"
 
 theme:
   default: "hacktoberfest25"
@@ -71,7 +71,19 @@ images:
 
 
 navigation:
-  - name: "Home"
-    url: "/"
+  - name: "About Us"
+    url: "/about/"
+  - name: "Meet the Doggos"
+    url: "/doggos/"
+  - name: "The Team"
+    url: "/team/"
+  - name: "Pictures"
+    url: "/pictures/"
+  - name: "Donate"
+    url: "/donate/"
+  - name: "Instructions"
+    url: "/instructions/"
+  - name: "Contact"
+    url: "/contact/"
   - name: "Blog"
     url: "/blog/"

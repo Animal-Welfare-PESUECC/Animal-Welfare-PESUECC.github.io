@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="prose lg:prose-xl mx-auto text-center mb-12">
+        <h1>{{ page.title }}</h1>
+        <p class="lead">{{ page.description }}</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-8 justify-center items-start max-w-5xl mx-auto">
+
+        <!-- Donation Methods Card -->
+        <div class="card bg-base-200 shadow-xl flex-1 w-full">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Support Our Cause</h2>
+                <div class="space-y-4">
+                    {% if page.upi_id %}
+                    <div class="alert alert-info">
+                        <span><strong>UPI ID:</strong> {{ page.upi_id }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if page.bank_details %}
+                    <div class="bg-base-100 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Bank Transfer</h3>
+                        <ul class="list-none m-0 p-0 text-sm">
+                            <li><strong>Account Name:</strong> {{ page.bank_details.name }}</li>
+                            <li><strong>Account Number:</strong> {{ page.bank_details.account_number }}</li>
+                            <li><strong>IFSC Code:</strong> {{ page.bank_details.ifsc }}</li>
+                            <li><strong>Bank:</strong> {{ page.bank_details.bank_name }}</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if page.qr_code %}
+                    <div class="flex justify-center mt-4">
+                        <img src="{{ page.qr_code }}" alt="Donation QR Code" class="max-w-xs rounded-lg shadow-md">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact/Info Card -->
+        <div class="card bg-primary text-primary-content shadow-xl flex-1 w-full">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">How Your Donation Helps</h2>
+                <ul class="list-disc list-inside space-y-2 text-lg">
+                    <li>Review and adjust daily feeding programs for campus dogs.</li>
+                    <li>Provide emergency medical care and vaccinations.</li>
+                    <li>Support sterilization and population control efforts.</li>
+                    <li>Maintain shelters and resting spots for animals.</li>
+                </ul>
+                <div class="card-actions justify-end mt-8">
+                    <a href="/contact/" class="btn btn-secondary">Contact Us for details</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

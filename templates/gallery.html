@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="prose lg:prose-xl mx-auto text-center mb-12">
+        <h1>{{ page.title }}</h1>
+        <p>{{ page.description }}</p>
+    </div>
+
+    {# Masonry-like grid using CSS columns #}
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+        {% for image in page.images %}
+        <div
+            class="break-inside-avoid rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
+            <img src="{{ image.src }}" alt="{{ image.alt }}"
+                class="w-full h-auto object-cover hover:scale-105 transition-transform duration-500">
+            {% if image.caption %}
+            <div class="p-2 bg-base-200 text-sm text-center">
+                {{ image.caption }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

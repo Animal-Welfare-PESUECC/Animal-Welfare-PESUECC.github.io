@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="prose lg:prose-xl mx-auto text-center mb-12">
+        <h1>{{ page.title }}</h1>
+        <p>{{ page.description }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for member in page.team_members %}
+        <!-- Card -->
+        <div onclick="document.getElementById('modal-{{ loop.index }}').showModal()"
+            class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 group">
+            <figure class="px-4 pt-4">
+                <div class="avatar">
+                    <div class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                        <img src="{{ member.image }}" alt="{{ member.name }}" />
+                    </div>
+                </div>
+            </figure>
+            <div class="card-body items-center text-center">
+                <h2 class="card-title">{{ member.name }}</h2>
+                <p class="text-sm opacity-75">{{ member.role }}</p>
+                <div class="badge badge-outline mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click for
+                    more</div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <dialog id="modal-{{ loop.index }}" class="modal">
+            <div class="modal-box relative">
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                </form>
+                <div class="flex flex-col items-center">
+                    <div class="avatar mb-4">
+                        <div class="w-24 rounded-full">
+                            <img src="{{ member.image or '/assets/default-avatar.png' }}" />
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-2xl mb-1">{{ member.name }}</h3>
+                    <span class="badge badge-primary mb-4">{{ member.role }}</span>
+                    <p class="py-4 text-center">{{ member.bio }}</p>
+                    {% if member.contact %}
+                    <div class="divider">Contact</div>
+                    <p class="text-sm">{{ member.contact }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

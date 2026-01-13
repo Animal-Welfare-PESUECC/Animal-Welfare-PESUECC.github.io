@@ -13,8 +13,11 @@ site.theme.default is defined else (site.theme if site.theme is defined else "dr
 
 <body class="pt-24 min-h-screen flex flex-col">
   <div class="navbar bg-base-100 fixed top-0 left-0 z-50">
-    <div class="flex-1">
-      <a href="/" class="btn btn-ghost text-xl">{{ site.site_name }}</a>
+    <div class="flex-1 flex justify-start">
+      <a href="/" class="btn btn-ghost text-xl flex">
+        <img src="https://placedog.net/40/40?id=logo" alt="Logo" class="w-8 h-8 rounded-full" /> <!--replace with paws logo-->
+        {{ site.site_name }}
+      </a>
     </div>
     <div class="flex-none">
       <ul class="menu menu-horizontal px-1">
@@ -30,7 +33,7 @@ site.theme.default is defined else (site.theme if site.theme is defined else "dr
   </main>
 
   <footer class="mt-auto w-full text-center py-6">
-    Generated using mettu, with ❤️
+    Made with ❤️ by the PAWS team, with <a href="https://github.com/Andy34G7/mettu" class="link">mettu</a> <!--keep this-->
   </footer>
 </body>
 

@@ -1,17 +1,14 @@
 ---
-title: "Home"
-layout: "main"
-hero_title: "<your name>"
-hero_subtitle: "about you"
-hero_image: "/assets/images/hero.png"
+layout: main
+title: PAWS ECC
+hero_title: PAWS ECC
+hero_subtitle: Dedicated to the welfare of our campus friends. We feed, vaccinate, and love.
+hero_image: "https://placedog.net/1200/600?id=42"
 social_links:
-    - name: "GitHub"
-      url: "https://github.com/yourusername"
-      icon: "github"
-    - name: "LinkedIn"
-      url: "https://www.linkedin.com/in/yourusername/"
-      icon: "linkedin"
-    - name: "Instagram"
-      url: "https://instagram.com/yourusername"
-      icon: "instagram"
+  - name: Instagram
+    url: https://instagram.com/pawsecc
+    icon: instagram
+  - name: Twitter
+    url: https://twitter.com/pawsecc
+    icon: twitter
 ---
