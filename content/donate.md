@@ -1,13 +1,7 @@
 ---
 layout: donate
-title: Donate to PAWS ECC
-description: Help us make a difference in the lives of campus animals.
-upi_id: "example@upi"
-bank_details:
-  name: "PAWS ECC"
-  account_number: "1234567890"
-  ifsc: "ABCD0123456"
-  bank_name: "Example Bank"
-qr_code: "/assets/images/qr-placeholder.png"
+title: Donate to keep feeding the dogs!
+description: These dogs
+milaap_url: "https://milaap.org/fundraisers/example"
 ---
-Your support helps us provide food, medical care, and shelter for over 50 dogs on our campus. Every rupee counts!
+Your support helps us provide food, medical care, and shelter for over 50 dogs on our campus.

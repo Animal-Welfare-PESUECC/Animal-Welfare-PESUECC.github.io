@@ -1,5 +1,5 @@
 ---
-title: "My Blog"
+title: "Our Blog"
 layout: "blog"
 ---
-A collection of my thoughts and findings.
+Do we write?

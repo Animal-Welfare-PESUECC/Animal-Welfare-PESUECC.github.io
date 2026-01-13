@@ -600,6 +600,8 @@ def render_page(
     templates,
     image_manifest=None,
     all_posts=None,
+    all_team_members=None,
+    all_doggos=None,
 ):
     layout = page_config.get("layout") or "post"
     if layout not in templates:
@@ -614,6 +616,10 @@ def render_page(
     render_details = {"site": site_config, "page": page_config, "content": html_data}
     if layout == "blog" and all_posts is not None:
         render_details["posts"] = all_posts
+    if layout == "team" and all_team_members is not None:
+        render_details["team_members"] = all_team_members
+    if layout == "doggos" and all_doggos is not None:
+        render_details["doggos"] = all_doggos
 
     final_html = template.render(render_details)
     final_html = replace_images_with_processed(final_html, image_manifest)
@@ -876,6 +882,9 @@ def main():
         current_slugs = set()
         previous_slugs = load_previous_slugs()
 
+        all_team_members = []
+        all_doggos = []
+
         for root, _, files in os.walk(CONTENT_DIR):
             for filename in files:
                 if not filename.endswith(".md"):
@@ -903,6 +912,10 @@ def main():
                     all_posts.append(page_data)
                     for tag in page_data.get("tags") or []:
                          tags.setdefault(tag, []).append(page_data)
+                elif page_data.get("layout") == "team-member":
+                    all_team_members.append(page_data)
+                elif page_data.get("layout") == "doggo-profile":
+                    all_doggos.append(page_data)
 
         removed = previous_slugs - current_slugs
         for slug in removed:
@@ -923,7 +936,19 @@ def main():
             ),
             reverse=True,
         )
+        
+        # Sort team members by 'order' or name
+        all_team_members.sort(key=lambda x: x.get("order", 999))
+        
+        # Sort doggos by 'order' or name
+        all_doggos.sort(key=lambda x: x.get("order", 999))
+
         for page in pages:
+            if page["data"].get("layout") == "team-member":
+                continue
+            if page["data"].get("layout") == "doggo-profile":
+                continue
+
             render_page(
                 page["data"],
                 page["content"],
@@ -931,6 +956,8 @@ def main():
                 templates,
                 image_manifest=image_manifest,
                 all_posts=all_posts,
+                all_team_members=all_team_members,
+                all_doggos=all_doggos,
             )
 
         tag_template = templates.get("tags") or templates.get("tags.html")

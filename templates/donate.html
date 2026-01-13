@@ -13,31 +13,16 @@
         <div class="card bg-base-200 shadow-xl flex-1 w-full">
             <div class="card-body">
                 <h2 class="card-title text-2xl mb-4">Support Our Cause</h2>
-                <div class="space-y-4">
-                    {% if page.upi_id %}
-                    <div class="alert alert-info">
-                        <span><strong>UPI ID:</strong> {{ page.upi_id }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if page.bank_details %}
-                    <div class="bg-base-100 p-4 rounded-lg">
-                        <h3 class="font-bold mb-2">Bank Transfer</h3>
-                        <ul class="list-none m-0 p-0 text-sm">
-                            <li><strong>Account Name:</strong> {{ page.bank_details.name }}</li>
-                            <li><strong>Account Number:</strong> {{ page.bank_details.account_number }}</li>
-                            <li><strong>IFSC Code:</strong> {{ page.bank_details.ifsc }}</li>
-                            <li><strong>Bank:</strong> {{ page.bank_details.bank_name }}</li>
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    {% if page.qr_code %}
-                    <div class="flex justify-center mt-4">
-                        <img src="{{ page.qr_code }}" alt="Donation QR Code" class="max-w-xs rounded-lg shadow-md">
-                    </div>
-                    {% endif %}
+                {% if page.milaap_url %}
+                <div class="text-center py-8">
+                    <p class="mb-6 text-lg">We are currently raising funds via Milaap. Please click the button below to
+                        contribute.</p>
+                    <a href="{{ page.milaap_url }}" target="_blank"
+                        class="btn btn-primary btn-lg wide shadow-lg hover:scale-105 transition-transform">
+                        Donate via Milaap
+                    </a>
                 </div>
+                {% endif %}
             </div>
         </div>
 

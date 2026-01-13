@@ -8,7 +8,7 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {% for member in page.team_members %}
+        {% for member in team_members %}
         <!-- Card -->
         <div onclick="document.getElementById('modal-{{ loop.index }}').showModal()"
             class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 group">
@@ -42,9 +42,18 @@
                     <h3 class="font-bold text-2xl mb-1">{{ member.name }}</h3>
                     <span class="badge badge-primary mb-4">{{ member.role }}</span>
                     <p class="py-4 text-center">{{ member.bio }}</p>
-                    {% if member.contact %}
-                    <div class="divider">Contact</div>
-                    <p class="text-sm">{{ member.contact }}</p>
+                    {% if member.socials %}
+                    <div class="divider">Connect</div>
+                    <div class="flex gap-4 justify-center">
+                        {% for link in member.socials %}
+                        <a href="{{ link.url }}" target="_blank" class="btn btn-ghost btn-circle btn-sm"
+                            aria-label="{{ link.name }}">
+                            <div class="w-5 h-5">
+                                {% include "icons/" + link.icon + ".svg" ignore missing %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
