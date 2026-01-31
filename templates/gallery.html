@@ -9,7 +9,9 @@
 
     {# Masonry-like grid using CSS columns #}
     <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-        {% for image in page.images %}
+        {% set display_images = gallery_images if gallery_images is defined and gallery_images else page.images %}
+        {% if display_images %}
+        {% for image in display_images %}
         <div
             class="break-inside-avoid rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
             <img src="{{ image.src }}" alt="{{ image.alt }}"
@@ -21,6 +23,9 @@
             {% endif %}
         </div>
         {% endfor %}
+        {% else %}
+        <p class="text-center text-gray-500">No images found.</p>
+        {% endif %}
     </div>
 
 </div>

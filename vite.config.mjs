@@ -237,6 +237,18 @@ const py_build_plugin = () => {
 export default defineConfig(async ({ command }) => {
   try {
     const siteConfig = loadSiteConfig();
+    
+    // Sync gallery images
+    console.log('[gallery] Syncing images from Google Drive...');
+    try {
+        // Only clean if explicitly asked via env or flag, otherwise standard sync (incremental)
+        // But fetch_gallery.py logic with --clean defaults to FALSE.
+        // We use the pythonExecutable found earlier.
+        execSync(`${pythonExecutable} src/fetch_gallery.py`, { stdio: 'inherit' });
+    } catch (e) {
+        console.error('[gallery] Sync failed (non-fatal if offline):', e.message);
+    }
+
     await processImages(inputDir, outputDir, siteConfig);
   } catch (e) {
     console.error('[images] processing failed', e);

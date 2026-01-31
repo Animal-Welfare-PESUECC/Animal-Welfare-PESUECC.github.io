@@ -5,6 +5,7 @@ import path from 'path';
 import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import * as https from "https";
+import fg from 'fast-glob';
 
 
 const TARGET_WIDTHS = [640, 1280];
@@ -47,15 +48,14 @@ export async function processImages(inputDir, outputDir, siteConfig = {}) {
         configuredStats = DEFAULT_FORMATS;
     }
     const targetFormats = configuredStats.filter(f => FORMAT_HANDLERS[f]);
-
+    
     const s3 = getS3Client();
     const bucket = process.env.S3_BUCKET;
 
-    const entries = await fs.readdir(inputDir, { withFileTypes: true });
-    const files = entries
-        .filter(e => e.isFile() && /\.(png|jpe?g|gif)$/i.test(e.name))
-        .map(e => e.name);
-
+    // Use fast-glob to finding files recursively
+    // We want paths relative to inputDir
+    const files = await fg('**/*.{png,jpg,jpeg,gif,webp}', { cwd: inputDir });
+    
     // { originalFile: { format: [{ width, path }] } }
     let manifest = {};
     const manifestPath = '.cache/image-manifest.json';
@@ -75,20 +75,24 @@ export async function processImages(inputDir, outputDir, siteConfig = {}) {
             continue;
         }
 
+        // Use basename for unique key/output filename to match existing logic
+        // WARNING: This assumes no filename collisions in different folders!
+        const fileBasename = path.basename(file); // e.g. "foo.jpg"
+        
         const origWidth = meta.width || Math.max(...TARGET_WIDTHS);
         const widths = [...new Set(
             TARGET_WIDTHS.filter(w => w <= origWidth).concat([origWidth])
         )].sort((a, b) => a - b);
 
-        const baseName = file.replace(/\.(png|jpe?g|gif)$/i, '');
+        const baseNameNoExt = fileBasename.replace(/\.(png|jpe?g|gif|webp)$/i, '');
         
-        // Ensure entry exists
-        manifest[file] ||= {};
+        // Ensure entry exists using BASENAME as key
+        manifest[fileBasename] ||= {};
 
         for (const w of widths) {
             for (const ext of targetFormats) {
                 const handler = FORMAT_HANDLERS[ext];
-                const outFile = `${baseName}-${w}.${ext}`;
+                const outFile = `${baseNameNoExt}-${w}.${ext}`;
                 const outPath = path.join(outputDir, outFile);
                 const key = `assets/images/${outFile}`;
                 

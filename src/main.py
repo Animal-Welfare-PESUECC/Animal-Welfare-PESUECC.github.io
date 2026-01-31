@@ -603,6 +603,7 @@ def render_page(
     all_posts=None,
     all_team_members=None,
     all_doggos=None,
+    gallery_images=None,
 ):
     layout = page_config.get("layout") or "post"
     if layout not in templates:
@@ -621,6 +622,8 @@ def render_page(
         render_details["team_members"] = all_team_members
     if layout == "doggos" and all_doggos is not None:
         render_details["doggos"] = all_doggos
+    if layout == "gallery" and gallery_images is not None:
+        render_details["gallery_images"] = gallery_images
 
     final_html = template.render(render_details)
     final_html = replace_images_with_processed(final_html, image_manifest)
@@ -813,6 +816,37 @@ def replace_images_with_processed(html, manifest):
     return parser.get_html()
 
 
+def get_gallery_images(image_manifest=None):
+    gallery_dir = "assets/images/gallery"
+    if not os.path.exists(gallery_dir):
+        return []
+
+    images = []
+    supported_exts = (".png", ".jpg", ".jpeg", ".gif", ".webp")
+    
+    # We want a predictable sort order
+    for filename in sorted(os.listdir(gallery_dir)):
+        if filename.lower().endswith(supported_exts):
+            # Construct src path relative to site root
+            src = f"/assets/images/gallery/{filename}"
+            
+            # Simple caption from filename: "dog_playing.jpg" -> "dog playing"
+            caption = os.path.splitext(filename)[0].replace("_", " ").replace("-", " ")
+            
+            # We can try to use manifest to get optimized src if available
+            # But the 'src' in <img> tag will be replaced by ImageReplacementParser later
+            # IF we use the replace_images_with_processed on the output.
+            # However, for the gallery loop, we might want to pass the raw struct
+            # and let the template render <img> which gets processed.
+            
+            images.append({
+                "src": src,
+                "alt": caption,
+                "caption": caption
+            })
+    return images
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file")
@@ -959,6 +993,7 @@ def main():
                 all_posts=all_posts,
                 all_team_members=all_team_members,
                 all_doggos=all_doggos,
+                gallery_images=get_gallery_images(image_manifest),
             )
 
         tag_template = templates.get("tags") or templates.get("tags.html")
