@@ -3,3 +3,5 @@ Jinja2
 PyYAML
 Pygments
 python-dotenv
+gdown
+tqdm
