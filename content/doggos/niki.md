@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Niki"
-age: "Unknown"
 gender: "Female"
 short_desc: "An excitable dog with mostly brown fur."
 image: "https://placedog.net/500/500?id=18"

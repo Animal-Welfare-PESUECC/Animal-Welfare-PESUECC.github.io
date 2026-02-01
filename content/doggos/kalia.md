@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Kalia"
-age: "Unknown"
 gender: "Male"
 short_desc: "A completely black dog who is not part of the main pack."
 image: "https://placedog.net/500/500?id=22"

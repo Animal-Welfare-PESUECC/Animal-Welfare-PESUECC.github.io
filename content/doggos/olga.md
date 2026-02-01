@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Olga"
-age: "Unknown"
 gender: "Female"
 short_desc: "A vocal dog who loves people but barks at vehicles."
 image: "https://placedog.net/500/500?id=6"

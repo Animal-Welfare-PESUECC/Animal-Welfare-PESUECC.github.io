@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Baloo"
-age: "Unknown"
 gender: "Male"
 short_desc: "A shy dog who resembles Kariya."
 image: "https://placedog.net/500/500?id=20"

@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Bourbon"
-age: "Unknown"
 gender: "Male"
 short_desc: "A shy dog with a white stripe on his face."
 image: "https://placedog.net/500/500?id=19"

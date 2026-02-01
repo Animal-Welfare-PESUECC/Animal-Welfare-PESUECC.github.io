@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Atia"
-age: "Unknown"
 gender: "Female"
 short_desc: "The friendly mother of the front area pack."
 image: "https://placedog.net/500/500?id=3"

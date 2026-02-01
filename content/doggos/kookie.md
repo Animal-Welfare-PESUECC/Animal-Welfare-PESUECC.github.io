@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Kookie"
-age: "Unknown"
 gender: "Female"
 short_desc: "Kariya's daughter with a white patch on her nose."
 image: "https://placedog.net/500/500?id=10"

@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Ginger"
-age: "Unknown"
 gender: "Female"
 short_desc: "The oldest and largest dog on campus."
 image: "https://placedog.net/500/500?id=1"

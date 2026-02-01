@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Aunt"
-age: "Unknown"
 gender: "Female"
 short_desc: "A caring dog who loves belly rubs."
 image: "https://placedog.net/500/500?id=2"

@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Neo"
-age: "Unknown"
 gender: "Male"
 short_desc: "A fluffy dog who responds to commands."
 image: "https://placedog.net/500/500?id=8"

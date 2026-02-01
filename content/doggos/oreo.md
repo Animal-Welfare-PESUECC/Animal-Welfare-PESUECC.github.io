@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Oreo"
-age: "Unknown"
 gender: "Female"
 short_desc: "A petite loner with black and white dots."
 image: "https://placedog.net/500/500?id=7"

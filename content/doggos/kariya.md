@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Kariya"
-age: "Unknown"
 gender: "Male"
 short_desc: "The night patrol of the college."
 image: "https://placedog.net/500/500?id=14"

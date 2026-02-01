@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Bheema"
-age: "Unknown"
 gender: "Male"
 short_desc: "Mostly white fur with a misaligned jaw."
 image: "https://placedog.net/500/500?id=17"

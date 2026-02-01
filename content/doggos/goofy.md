@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Goofy"
-age: "Unknown"
 gender: "Male"
 short_desc: "A lively dog that lives up to his name."
 image: "https://placedog.net/500/500?id=9"

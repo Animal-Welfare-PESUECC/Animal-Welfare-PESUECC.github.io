@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Julia"
-age: "Unknown"
 gender: "Female"
 short_desc: "A shy dog with a white border on her face."
 image: "https://placedog.net/500/500?id=5"

@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Benji"
-age: "Unknown"
 gender: "Male"
 short_desc: "The newest member of the gang, distinct for his peach patches."
 image: "https://placedog.net/500/500?id=13"

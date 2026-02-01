@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Tofu"
-age: "Unknown"
 gender: "Male"
 short_desc: "A survivor with a distinct face and pointy ears."
 image: "https://placedog.net/500/500?id=16"

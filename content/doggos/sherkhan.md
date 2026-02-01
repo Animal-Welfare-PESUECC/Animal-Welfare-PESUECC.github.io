@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Sherkhan"
-age: "Unknown"
 gender: "Female"
 short_desc: "A black dog with brown patterns who stays under buses."
 image: "https://placedog.net/500/500?id=21"

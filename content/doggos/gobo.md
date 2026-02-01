@@ -1,7 +1,6 @@
 ---
 layout: doggo-profile
 name: "Gobo"
-age: "Unknown"
 gender: "Male"
 short_desc: "A calm attention seeker who isn't scared of needles."
 image: "https://placedog.net/500/500?id=4"
