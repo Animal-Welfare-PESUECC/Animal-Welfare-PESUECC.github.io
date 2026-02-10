@@ -17,6 +17,7 @@ description: Guidelines and protocols for volunteers.
 - **Front Dogs**: _2 packs (8 kg)_ — Place the remaining food on the platform near the cricket ground.
 
 - **Total Food Distribution**:
+
 | Dog Group | Food Quantity |
 |-----------|---------------|
 | Back Dogs | 5.5 kg        |
