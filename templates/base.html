@@ -13,13 +13,27 @@ site.theme.default is defined else (site.theme if site.theme is defined else "dr
 
 <body class="pt-24 min-h-screen flex flex-col">
   <div class="navbar bg-base-100 fixed top-0 left-0 z-50">
-    <div class="flex-1 flex justify-start">
-      <a href="/" class="btn btn-ghost text-xl flex">
+    <div class="navbar-start">
+      <div class="dropdown">
+        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+          </svg>
+        </div>
+        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+          {% for item in site.navigation %}
+          <li><a href="{{ item.url }}">{{ item.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <a href="/" class="btn btn-ghost text-xl">
         <img src="/assets/images/paws_logo.png" alt="Logo" class="w-8 h-8 rounded-full" />
         {{ site.site_name }}
       </a>
     </div>
-    <div class="flex-none">
+    <div class="navbar-center hidden lg:flex">
+    </div>
+    <div class="navbar-end hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
         {% for item in site.navigation %}
         <li><a href="{{ item.url }}">{{ item.name }}</a></li>
