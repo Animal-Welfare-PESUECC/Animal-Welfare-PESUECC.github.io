@@ -78,8 +78,6 @@ navigation:
     url: "/about/"
   - name: "Meet the Doggos"
     url: "/doggos/"
-  - name: "The Team"
-    url: "/team/"
   - name: "Gallery"
     url: "/gallery/"
   - name: "Donate"
